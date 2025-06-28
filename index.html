@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Daftar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 10px;
+            color: red;
+            font-weight: bold;
+        }
+        .switch-form {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .switch-form a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="formTitle">Login Akun</h2>
+
+        <form id="authForm">
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" id="submitBtn">Login</button>
+            <p class="message" id="authMessage"></p>
+        </form>
+
+        <div class="switch-form">
+            <p id="switchText">Belum punya akun? <a href="#" id="toggleForm">Daftar di sini</a></p>
+        </div>
+    </div>
+
+    <script>
+        const authForm = document.getElementById('authForm');
+        const formTitle = document.getElementById('formTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const authMessage = document.getElementById('authMessage');
+        const toggleFormLink = document.getElementById('toggleForm');
+        const switchText = document.getElementById('switchText');
+
+        let isLoginMode = true; // true = mode login, false = mode daftar
+
+        // Fungsi untuk beralih antara mode login dan daftar
+        toggleFormLink.addEventListener('click', function(event) {
+            event.preventDefault(); // Mencegah link dari merefresh halaman
+            isLoginMode = !isLoginMode; // Ubah mode
+
+            // Sesuaikan teks dan tombol berdasarkan mode
+            if (isLoginMode) {
+                formTitle.textContent = 'Login Akun';
+                submitBtn.textContent = 'Login';
+                switchText.innerHTML = 'Belum punya akun? <a href="#" id="toggleForm">Daftar di sini</a>';
+            } else {
+                formTitle.textContent = 'Daftar Akun Baru';
+                submitBtn.textContent = 'Daftar';
+                switchText.innerHTML = 'Sudah punya akun? <a href="#" id="toggleForm">Login di sini</a>';
+            }
+            // Penting: re-attach event listener karena elemen link dibuat ulang
+            document.getElementById('toggleForm').addEventListener('click', toggleFormLink.onclick);
+            authMessage.textContent = ''; // Kosongkan pesan saat beralih mode
+            document.getElementById('username').value = ''; // Kosongkan input
+            document.getElementById('password').value = ''; // Kosongkan input
+        });
+
+        // Event listener untuk submit form (baik login maupun daftar)
+        authForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah form untuk merefresh halaman
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // --- SIMULASI PENYIMPANAN DATA MENGGUNAKAN localStorage ---
+            // Data pengguna disimpan sebagai objek JSON di localStorage
+            let users = JSON.parse(localStorage.getItem('users')) || {};
+
+            if (isLoginMode) {
+                // Logika SIMULASI Login
+                if (users[username] && users[username].password === password) {
+                    authMessage.style.color = "green";
+                    authMessage.textContent = "Login berhasil! Mengarahkan ke halaman baru...";
+                    localStorage.setItem('loggedInUser', username); // Simpan status login
+                    setTimeout(() => {
+                        window.location.href = 'https://img1.pixhost.to/images/6813/616075695_mamix.jpg'; // Arahkan ke halaman "dashboard.html"
+                    }, 1000); // Tunda 1 detik sebelum redirect
+                } else {
+                    authMessage.style.color = "red";
+                    authMessage.textContent = "Username atau password salah.";
+                }
+            } else {
+                // Logika SIMULASI Pendaftaran
+                if (users[username]) {
+                    authMessage.style.color = "red";
+                    authMessage.textContent = "Username sudah terdaftar. Gunakan username lain.";
+                } else {
+                    users[username] = { password: password }; // Simpan data pengguna baru
+                    localStorage.setItem('users', JSON.stringify(users)); // Simpan ke localStorage
+                    authMessage.style.color = "green";
+                    authMessage.textContent = "Pendaftaran berhasil! Silakan login.";
+                    
+                    // Setelah daftar, beralih ke mode login secara otomatis
+                    isLoginMode = true;
+                    formTitle.textContent = 'Login Akun';
+                    submitBtn.textContent = 'Login';
+                    switchText.innerHTML = 'Belum punya akun? <a href="#" id="toggleForm">Daftar di sini</a>';
+                    document.getElementById('toggleForm').addEventListener('click', toggleFormLink.onclick);
+                    document.getElementById('username').value = ''; // Kosongkan input
+                    document.getElementById('password').value = ''; // Kosongkan input
+                }
+            }
+        });
+    </script>
+</body>
+  </html>
